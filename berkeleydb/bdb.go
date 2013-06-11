@@ -7,6 +7,12 @@ package berkeleydb
 */
 import "C"
 
+import (
+  "fmt"
+)
+
+const BDB_VERSION string = "1.0.0"
+
 type BDB struct {
   db *C.DB
 }
@@ -30,4 +36,20 @@ func (handle *BDB) Open(filename string) int {
   ret := C.go_db_open(db, nil, C.CString(filename), nil, C.DB_BTREE, C.DB_CREATE, 0)
 
   return int(ret)
+}
+
+func (handle *BDB) Close() int {
+  ret := C.go_db_close(handle.db, 0)
+
+  return int(ret)
+}
+
+
+// UTILITY FUNCTIONS
+
+func Version() string {
+  lib_version := C.GoString(C.db_full_version(nil, nil, nil, nil, nil))
+
+  tpl := "%s (Go bindings v%s)"
+  return fmt.Sprintf(tpl, lib_version, BDB_VERSION)
 }
