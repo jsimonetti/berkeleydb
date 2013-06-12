@@ -9,6 +9,7 @@ import "C"
 
 import (
 	"fmt"
+	"errors"
 )
 
 const BDB_VERSION string = "0.0.1"
@@ -37,43 +38,49 @@ type BDB struct {
 
 type Errno int
 
-func CreateDB() (*BDB, int) {
+func CreateDB() (*BDB, error) {
 	var db *C.DB
 	err := C.db_create(&db, nil, 0)
 
 	if err > 0 {
-		return nil, int(err)
+		return nil, createError(err)
 	}
 
-	return &BDB{db}, 0
+	return &BDB{db}, nil
 }
 
-func (handle *BDB) Open(filename string, dbtype C.DBTYPE, flags C.u_int32_t) int {
+func (handle *BDB) Open(filename string, dbtype C.DBTYPE, flags C.u_int32_t) error {
 	db := handle.db
 
 	ret := C.go_db_open(db, nil, C.CString(filename), nil, dbtype, flags, 0)
 
-	return int(ret)
+	return createError(ret)
 }
 
-func (handle *BDB) Close() int {
+func (handle *BDB) Close() error {
 	ret := C.go_db_close(handle.db, 0)
 
-	return int(ret)
+	return createError(ret)
 }
 
-func (handle *BDB) OpenFlags() (C.u_int32_t, int) {
+func (handle *BDB) OpenFlags() (C.u_int32_t, error) {
 	var flags C.u_int32_t
 
 	ret := C.go_db_get_open_flags(handle.db, &flags)
 
-	return flags, int(ret)
+	return flags, createError(ret)
 }
 
-func (handle *BDB) Remove(filename string) int {
+func (handle *BDB) Remove(filename string) error {
 	ret := C.go_db_remove(handle.db, C.CString(filename))
 
-	return int(ret)
+	return createError(ret)
+}
+
+func (handle *BDB) Rename(oldname, newname string) error {
+	ret := C.go_db_rename(handle.db, C.CString(oldname), C.CString(newname))
+
+	return createError(ret)
 }
 
 // UTILITY FUNCTIONS
@@ -84,3 +91,22 @@ func Version() string {
 	tpl := "%s (Go bindings v%s)"
 	return fmt.Sprintf(tpl, lib_version, BDB_VERSION)
 }
+
+type DBError struct {
+	Code int
+	Message string
+}
+
+func createError(code C.int) error {
+	if code == 0 {
+		return nil
+	}
+	msg := C.db_strerror(code)
+	e := DBError{int(code), C.GoString(msg)}
+	return errors.New(e.Error())
+}
+
+func (e *DBError) Error() string {
+	return fmt.Sprintf("%d: %s", e.Code, e.Message)
+}
+
