@@ -42,24 +42,6 @@ func TestOpen(t *testing.T) {
 
 }
 
-// FIXME: This is causing Go to hang during testing.
-//func TestRename(t *testing.T) {
-	//db, _ := CreateDB()
-
-	//newname := "foo_" + TEST_FILENAME
-
-	//err := db.Rename(TEST_FILENAME, newname)
-	//if err > 0 {
-		//t.Errorf("Could not rename %s to %s", TEST_FILENAME, newname)
-	//}
-
-	//err = db.Remove(newname)
-	//if err > 0 {
-		//t.Errorf("Could not remove %s", newname)
-	//}
-//}
-
-
 func TestRemove(t *testing.T) {
 	db, _ := CreateDB()
 
@@ -68,3 +50,25 @@ func TestRemove(t *testing.T) {
 		t.Errorf("Could not delete %s. Expected 0, got %s", TEST_FILENAME, err)
 	}
 }
+
+func TestRename(t *testing.T) {
+	db, _ := CreateDB()
+	db.Open(TEST_FILENAME, DB_HASH, DB_CREATE)
+	db.Close()
+
+	db, _ = CreateDB()
+
+	newname := "foo_" + TEST_FILENAME
+	err := db.Rename(TEST_FILENAME, newname)
+	if err != nil {
+		t.Errorf("Could not rename %s to %s", TEST_FILENAME, newname)
+	}
+
+	db, _ = CreateDB()
+	err = db.Remove(newname)
+	if err != nil {
+		t.Errorf("Could not remove %s", newname)
+	}
+}
+
+
