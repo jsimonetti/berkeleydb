@@ -14,12 +14,15 @@ import (
 
 const BDB_VERSION string = "0.0.1"
 
-// Flags for opening a database.
+// Flags for opening a database or environment.
 const (
 	DB_CREATE   = C.DB_CREATE
 	DB_EXCL     = C.DB_EXCL
 	DB_RDONLY   = C.DB_RDONLY
 	DB_TRUNCATE = C.DB_TRUNCATE
+
+  // Env
+  DB_INIT_MPOOL = C.DB_INIT_MPOOL
 )
 
 // Database types.
@@ -49,10 +52,27 @@ func NewDB() (*BDB, error) {
 	return &BDB{db}, nil
 }
 
-func (handle *BDB) Open(filename string, dbtype C.DBTYPE, flags C.u_int32_t) error {
+func NewDBInEnvironment(env *Environment) (*BDB, error) {
+	var db *C.DB
+	err := C.db_create(&db, env.environ, 0)
+
+	if err > 0 {
+		return nil, createError(err)
+	}
+
+	return &BDB{db}, nil
+}
+
+func (handle *BDB) OpenWithTxn(filename string, txn *C.DB_TXN, dbtype C.DBTYPE, flags C.u_int32_t) error {
 	db := handle.db
 
-	ret := C.go_db_open(db, nil, C.CString(filename), nil, dbtype, flags, 0)
+	ret := C.go_db_open(db, txn, C.CString(filename), nil, dbtype, flags, 0)
+
+	return createError(ret)
+}
+
+func (handle *BDB) Open(filename string, dbtype C.DBTYPE, flags C.u_int32_t) error {
+	ret := C.go_db_open(handle.db, nil, C.CString(filename), nil, dbtype, flags, 0)
 
 	return createError(ret)
 }

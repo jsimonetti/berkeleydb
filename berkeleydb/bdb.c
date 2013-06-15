@@ -28,3 +28,11 @@ int go_db_remove(DB *dbp, char *filename) {
 int go_db_rename(DB *dbp, char *oldname, char *newname) {
   return dbp->rename(dbp, oldname, NULL, newname, 0);
 }
+
+int go_env_open(DB_ENV *env, char *dirname, u_int32_t flags, u_int32_t mode) {
+	return env->open(env, dirname, flags, mode);
+}
+
+int go_env_close(DB_ENV *env, u_int32_t flags) {
+	return env->close(env, flags);
+}

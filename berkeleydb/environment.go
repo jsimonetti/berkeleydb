@@ -8,7 +8,7 @@ package berkeleydb
 import "C"
 
 type Environment struct {
-	env *C.DB_ENV
+	environ *C.DB_ENV
 }
 
 func NewEnvironment() (*Environment, error) {
@@ -19,4 +19,16 @@ func NewEnvironment() (*Environment, error) {
 	}
 
 	return &Environment{env}, nil
+}
+
+func (env *Environment) Open(path string, flags C.u_int32_t, fileMode int) error {
+	mode := C.u_int32_t(fileMode)
+
+	err := C.go_env_open(env.environ, C.CString(path), flags, mode)
+	return createError(err)
+}
+
+func (env *Environment) Close() error {
+	err := C.go_env_close(env.environ, 0)
+	return createError(err)
 }
