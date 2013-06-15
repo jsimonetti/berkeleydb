@@ -4,16 +4,16 @@ import "testing"
 
 const TEST_FILENAME = "test_db.db"
 
-func TestCreate(t *testing.T) {
+func TestNewDB(t *testing.T) {
 
-	_, err := CreateDB()
+	_, err := NewDB()
 
 	if err != nil {
 		t.Errorf("Expected error code 0, got %d", err)
 	}
 }
 func TestOpen(t *testing.T) {
-	db, err := CreateDB()
+	db, err := NewDB()
 
 	if err != nil {
 		t.Errorf("Unexpected failure of CreateDB")
@@ -43,7 +43,7 @@ func TestOpen(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	db, _ := CreateDB()
+	db, _ := NewDB()
 
 	err := db.Remove(TEST_FILENAME)
 	if err != nil {
@@ -52,11 +52,11 @@ func TestRemove(t *testing.T) {
 }
 
 func TestRename(t *testing.T) {
-	db, _ := CreateDB()
+	db, _ := NewDB()
 	db.Open(TEST_FILENAME, DB_HASH, DB_CREATE)
 	db.Close()
 
-	db, _ = CreateDB()
+	db, _ = NewDB()
 
 	newname := "foo_" + TEST_FILENAME
 	err := db.Rename(TEST_FILENAME, newname)
@@ -64,7 +64,7 @@ func TestRename(t *testing.T) {
 		t.Errorf("Could not rename %s to %s", TEST_FILENAME, newname)
 	}
 
-	db, _ = CreateDB()
+	db, _ = NewDB()
 	err = db.Remove(newname)
 	if err != nil {
 		t.Errorf("Could not remove %s", newname)

@@ -38,7 +38,7 @@ type BDB struct {
 
 type Errno int
 
-func CreateDB() (*BDB, error) {
+func NewDB() (*BDB, error) {
 	var db *C.DB
 	err := C.db_create(&db, nil, 0)
 
