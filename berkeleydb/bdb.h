@@ -10,3 +10,9 @@ extern int go_db_remove(DB *, char *);
 extern int go_db_rename(DB *, char *, char *);
 extern int go_env_open(DB_ENV *, char *, u_int32_t, u_int32_t);
 extern int go_env_close(DB_ENV *, u_int32_t);
+
+
+// Convenience functions MAY BE REMOVED.
+int go_db_put_string(DB *, char *, char *, u_int32_t);
+int go_db_get_string(DB *, char *, char *);
+int go_db_del_string(DB *, char *);

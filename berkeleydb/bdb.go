@@ -103,6 +103,27 @@ func (handle *BDB) Rename(oldname, newname string) error {
 	return createError(ret)
 }
 
+// Convenience function to store a string.
+func (handle *BDB) PutString(name, value string) error {
+	ret := C.go_db_put_string(handle.db, C.CString(name), C.CString(value), 0)
+	if ret > 0 {
+		return createError(ret)
+	}
+	return nil
+}
+
+// Convenience function to get a string.
+func (handle *BDB) GetString(name string) (string, error) {
+	value := C.CString("")
+	ret := C.go_db_get_string(handle.db, C.CString(name), value)
+	return C.GoString(value), createError(ret)
+}
+
+func (handle *BDB) DeleteString(name string) error {
+	ret := C.go_db_del_string(handle.db, C.CString(name));
+	return createError(ret);
+}
+
 // UTILITY FUNCTIONS
 
 func Version() string {

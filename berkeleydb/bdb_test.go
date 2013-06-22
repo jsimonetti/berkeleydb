@@ -42,6 +42,79 @@ func TestOpen(t *testing.T) {
 
 }
 
+func openDB() (*BDB, error) {
+	db, err := NewDB()
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Open(TEST_FILENAME, DB_BTREE, DB_CREATE)
+
+	if err != nil  {
+		return nil, err
+	}
+
+	return db, nil;
+}
+
+func closeDB(db *BDB) error {
+	return db.Close()
+}
+
+func TestPutString(t *testing.T) {
+	db, err := openDB()
+	defer closeDB(db)
+
+
+	err = db.PutString("key", "value")
+	if err != nil {
+		t.Error("Expected clean PutString.", err)
+	}
+}
+
+func TestGetString(t *testing.T) {
+	db, err := openDB()
+	defer closeDB(db)
+
+
+	err = db.PutString("key", "value")
+	if err != nil {
+		t.Error("Expected clean PutString: ", err)
+	}
+
+	val, err := db.GetString("key")
+	if err != nil {
+		t.Error("Unexpected error in GetString: ", err)
+		return
+	}
+
+	if val != "value" {
+		t.Error("Expected 'value', got ", val)
+	}
+}
+
+func TestDeleteString(t *testing.T) {
+	db, err := openDB()
+	defer closeDB(db)
+
+
+	err = db.PutString("key", "value")
+	if err != nil {
+		t.Error("Expected clean PutString: ", err)
+	}
+
+	err = db.DeleteString("key")
+	if err != nil {
+		t.Error("Expected a clean delete, got ", err)
+	}
+
+	err = db.DeleteString("nosuchkey")
+	if err != nil {
+		t.Error("Expected empty delete, got ", err)
+	}
+}
+
 func TestRemove(t *testing.T) {
 	db, _ := NewDB()
 
