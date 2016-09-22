@@ -3,13 +3,15 @@ package berkeleydb
 /*
 #cgo LDFLAGS: -ldb
 #include <db.h>
+#include <stdlib.h>
 #include "bdb.h"
 */
 import "C"
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
+	"unsafe"
 )
 
 const BDB_VERSION string = "0.0.1"
@@ -21,8 +23,8 @@ const (
 	DB_RDONLY   = C.DB_RDONLY
 	DB_TRUNCATE = C.DB_TRUNCATE
 
-  // Env
-  DB_INIT_MPOOL = C.DB_INIT_MPOOL
+	// Env
+	DB_INIT_MPOOL = C.DB_INIT_MPOOL
 )
 
 // Database types.
@@ -115,13 +117,15 @@ func (handle *BDB) PutString(name, value string) error {
 // Convenience function to get a string.
 func (handle *BDB) GetString(name string) (string, error) {
 	value := C.CString("")
+	defer C.free(unsafe.Pointer(value))
+
 	ret := C.go_db_get_string(handle.db, C.CString(name), value)
 	return C.GoString(value), createError(ret)
 }
 
 func (handle *BDB) DeleteString(name string) error {
-	ret := C.go_db_del_string(handle.db, C.CString(name));
-	return createError(ret);
+	ret := C.go_db_del_string(handle.db, C.CString(name))
+	return createError(ret)
 }
 
 // UTILITY FUNCTIONS
@@ -134,7 +138,7 @@ func Version() string {
 }
 
 type DBError struct {
-	Code int
+	Code    int
 	Message string
 }
 
@@ -150,4 +154,3 @@ func createError(code C.int) error {
 func (e *DBError) Error() string {
 	return fmt.Sprintf("%d: %s", e.Code, e.Message)
 }
-

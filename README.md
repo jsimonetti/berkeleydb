@@ -1,14 +1,3 @@
-# PerkDB
-
-A persistent key-value database with support for arbitrary indexes. It
-provides a REST API and stores documents as JSON data.
-
-**NOTICE: Due to the change in license for BerkeleyDB, I have discontinued development on this package.**
-
-## Sub-Packages
-
-* `perkdb/berkeleydb`: Go bindings for the BerkeleyDB C library.
-
 ### BerkeleyDB Bindings
 
 This package provides BerkeleyDB wrappers for the C library using `cgo`.
@@ -21,31 +10,41 @@ package main
 ### Example
 ```go
 
+package main
+
 import (
-	bdb "./berkeleydb"
+        "fmt"
+
+        "github.com/jsimonetti/berkeleydb"
 )
 
 func main() {
-	print(bdb.Version())
-	print("\n")
+        var err error
 
-	db, err := bdb.CreateDB()
-	if err > 0 {
-		print("Found error.\n")
-		return
-	}
+        db, err := berkeleydb.NewDB()
+        if err != nil {
+                fmt.Printf("Unexpected failure of CreateDB %s\n", err)
+        }
 
-	print("Opening database.\n")
-	err = db.Open("test.db", bdb.DB_BTREE, bdb.DB_CREATE)
-	if err > 0 {
-		print("Failed to open database.")
-	}
+        err = db.Open("./test.db", berkeleydb.DB_HASH, berkeleydb.DB_CREATE)
+        if err != nil {
+                fmt.Printf("Could not open test_db.db. Error code %s", err)
+                return
+        }
+        defer db.Close()
 
-	print("Closing database.\n")
-	err = db.Close()
-	if err > 0 {
-		print("failed to close database.")
-	}
+        err = db.PutString("key", "value")
+        if err != nil {
+                fmt.Printf("Expected clean PutString: %s\n", err)
+        }
+
+        value, err := db.GetString("key")
+        if err != nil {
+                fmt.Printf("Unexpected error in GetString: %s\n", err)
+                return
+        }
+        fmt.Printf("value: %s\n", value)
+
 }
 
 ```
