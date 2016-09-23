@@ -9,4 +9,5 @@ addons:
   apt:
     packages:
     - libdb-dev
-
+script:
+- go test -v .
