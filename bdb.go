@@ -21,7 +21,7 @@ const (
 	DbRdOnly   = C.DB_RDONLY
 	DbTruncate = C.DB_TRUNCATE
 
-	// Env
+	// Environment Only
 	DbInitMpool = C.DB_INIT_MPOOL
 )
 
@@ -35,16 +35,20 @@ const (
 	DbUnknown = C.DB_UNKNOWN
 )
 
+// Db is the structure that holds the database connection
 type Db struct {
 	db *C.DB
 }
 
+// Cursor holds the current cursor position
 type Cursor struct {
 	dbc *C.DBC
 }
 
+// Errno is the error number
 type Errno int
 
+// NewDB initialises a new bdb connection
 func NewDB() (*Db, error) {
 	var db *C.DB
 	err := C.db_create(&db, nil, 0)
@@ -56,6 +60,7 @@ func NewDB() (*Db, error) {
 	return &Db{db}, nil
 }
 
+// NewDBInEnvironment initialises a new bdb connection in an environment
 func NewDBInEnvironment(env *Environment) (*Db, error) {
 	var db *C.DB
 	err := C.db_create(&db, env.environ, 0)
@@ -67,6 +72,8 @@ func NewDBInEnvironment(env *Environment) (*Db, error) {
 	return &Db{db}, nil
 }
 
+// OpenWithTxn opens the database in transaction mode (transactions are not yet supported by all
+// funtions)
 func (handle *Db) OpenWithTxn(filename string, txn *C.DB_TXN, dbtype C.DBTYPE, flags C.u_int32_t) error {
 	db := handle.db
 	file := C.CString(filename)
@@ -77,6 +84,7 @@ func (handle *Db) OpenWithTxn(filename string, txn *C.DB_TXN, dbtype C.DBTYPE, f
 	return createError(ret)
 }
 
+// Open a database file
 func (handle *Db) Open(filename string, dbtype C.DBTYPE, flags C.u_int32_t) error {
 	file := C.CString(filename)
 	defer C.free(unsafe.Pointer(file))
@@ -86,12 +94,14 @@ func (handle *Db) Open(filename string, dbtype C.DBTYPE, flags C.u_int32_t) erro
 	return createError(ret)
 }
 
+// Close the database file
 func (handle *Db) Close() error {
 	ret := C.go_db_close(handle.db, 0)
 
 	return createError(ret)
 }
 
+// Flags returns the flags of the database connection
 func (handle *Db) Flags() (C.u_int32_t, error) {
 	var flags C.u_int32_t
 
@@ -100,6 +110,7 @@ func (handle *Db) Flags() (C.u_int32_t, error) {
 	return flags, createError(ret)
 }
 
+// Remove the database
 func (handle *Db) Remove(filename string) error {
 	file := C.CString(filename)
 	defer C.free(unsafe.Pointer(file))
@@ -109,6 +120,7 @@ func (handle *Db) Remove(filename string) error {
 	return createError(ret)
 }
 
+// Rename the database filename
 func (handle *Db) Rename(oldname, newname string) error {
 	oname := C.CString(oldname)
 	defer C.free(unsafe.Pointer(oname))
@@ -120,7 +132,7 @@ func (handle *Db) Rename(oldname, newname string) error {
 	return createError(ret)
 }
 
-// Convenience function to store a string.
+// Put a key/value pair into the database
 func (handle *Db) Put(name, value string) error {
 	nname := C.CString(name)
 	defer C.free(unsafe.Pointer(nname))
@@ -134,7 +146,7 @@ func (handle *Db) Put(name, value string) error {
 	return nil
 }
 
-// Convenience function to get a string.
+// Get a value from the database by key
 func (handle *Db) Get(name string) (string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
@@ -145,6 +157,7 @@ func (handle *Db) Get(name string) (string, error) {
 	return C.GoString(value), createError(ret)
 }
 
+// Delete a value from the database by key
 func (handle *Db) Delete(name string) error {
 	nname := C.CString(name)
 	defer C.free(unsafe.Pointer(nname))
@@ -153,6 +166,7 @@ func (handle *Db) Delete(name string) error {
 	return createError(ret)
 }
 
+//Cursor returns a handle for the database cursor
 func (handle *Db) Cursor() (*Cursor, error) {
 	var dbc *C.DBC
 
@@ -165,6 +179,7 @@ func (handle *Db) Cursor() (*Cursor, error) {
 	return &Cursor{dbc}, nil
 }
 
+//GetNext moves the cursor to the next entry and returns the key/value pair
 func (cursor *Cursor) GetNext() (string, string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
@@ -175,6 +190,7 @@ func (cursor *Cursor) GetNext() (string, string, error) {
 	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
+//GetPrevious moves the cursor to the previous entry and returns the key/value pair
 func (cursor *Cursor) GetPrevious() (string, string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
@@ -185,6 +201,7 @@ func (cursor *Cursor) GetPrevious() (string, string, error) {
 	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
+//GetFirst moves the cursor to the first entry and returns the key/value pair
 func (cursor *Cursor) GetFirst() (string, string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
@@ -195,6 +212,7 @@ func (cursor *Cursor) GetFirst() (string, string, error) {
 	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
+//GetLast moves the cursor to the last entry and returns the key/value pair
 func (cursor *Cursor) GetLast() (string, string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
@@ -205,8 +223,9 @@ func (cursor *Cursor) GetLast() (string, string, error) {
 	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
-// UTILITY FUNCTIONS
+// Version returns the version of the database and binding
 
+// UTILITY FUNCTIONS
 func Version() string {
 	lib_version := C.GoString(C.db_full_version(nil, nil, nil, nil, nil))
 
@@ -214,6 +233,7 @@ func Version() string {
 	return fmt.Sprintf(tpl, lib_version, version)
 }
 
+// DBError contains the database Error
 type DBError struct {
 	Code    int
 	Message string
@@ -228,6 +248,7 @@ func createError(code C.int) error {
 	return errors.New(e.Error())
 }
 
+// Error return the string representation of the error
 func (e *DBError) Error() string {
 	return fmt.Sprintf("%d: %s", e.Code, e.Message)
 }
