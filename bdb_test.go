@@ -45,7 +45,7 @@ func TestOpen(t *testing.T) {
 
 }
 
-func openDB() (*berkeleydb.BerkeleyDB, error) {
+func openDB() (*berkeleydb.Db, error) {
 	db, err := berkeleydb.NewDB()
 
 	if err != nil {
@@ -61,7 +61,7 @@ func openDB() (*berkeleydb.BerkeleyDB, error) {
 	return db, nil
 }
 
-func closeDB(db *berkeleydb.BerkeleyDB) error {
+func closeDB(db *berkeleydb.Db) error {
 	return db.Close()
 }
 

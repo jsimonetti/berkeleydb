@@ -35,7 +35,7 @@ const (
 	DbUnknown = C.DB_UNKNOWN
 )
 
-type BerkeleyDB struct {
+type Db struct {
 	db *C.DB
 }
 
@@ -45,7 +45,7 @@ type Cursor struct {
 
 type Errno int
 
-func NewDB() (*BerkeleyDB, error) {
+func NewDB() (*Db, error) {
 	var db *C.DB
 	err := C.db_create(&db, nil, 0)
 
@@ -53,10 +53,10 @@ func NewDB() (*BerkeleyDB, error) {
 		return nil, createError(err)
 	}
 
-	return &BerkeleyDB{db}, nil
+	return &Db{db}, nil
 }
 
-func NewDBInEnvironment(env *Environment) (*BerkeleyDB, error) {
+func NewDBInEnvironment(env *Environment) (*Db, error) {
 	var db *C.DB
 	err := C.db_create(&db, env.environ, 0)
 
@@ -64,10 +64,10 @@ func NewDBInEnvironment(env *Environment) (*BerkeleyDB, error) {
 		return nil, createError(err)
 	}
 
-	return &BerkeleyDB{db}, nil
+	return &Db{db}, nil
 }
 
-func (handle *BerkeleyDB) OpenWithTxn(filename string, txn *C.DB_TXN, dbtype C.DBTYPE, flags C.u_int32_t) error {
+func (handle *Db) OpenWithTxn(filename string, txn *C.DB_TXN, dbtype C.DBTYPE, flags C.u_int32_t) error {
 	db := handle.db
 	file := C.CString(filename)
 	defer C.free(unsafe.Pointer(file))
@@ -77,7 +77,7 @@ func (handle *BerkeleyDB) OpenWithTxn(filename string, txn *C.DB_TXN, dbtype C.D
 	return createError(ret)
 }
 
-func (handle *BerkeleyDB) Open(filename string, dbtype C.DBTYPE, flags C.u_int32_t) error {
+func (handle *Db) Open(filename string, dbtype C.DBTYPE, flags C.u_int32_t) error {
 	file := C.CString(filename)
 	defer C.free(unsafe.Pointer(file))
 
@@ -86,13 +86,13 @@ func (handle *BerkeleyDB) Open(filename string, dbtype C.DBTYPE, flags C.u_int32
 	return createError(ret)
 }
 
-func (handle *BerkeleyDB) Close() error {
+func (handle *Db) Close() error {
 	ret := C.go_db_close(handle.db, 0)
 
 	return createError(ret)
 }
 
-func (handle *BerkeleyDB) Flags() (C.u_int32_t, error) {
+func (handle *Db) Flags() (C.u_int32_t, error) {
 	var flags C.u_int32_t
 
 	ret := C.go_db_get_open_flags(handle.db, &flags)
@@ -100,7 +100,7 @@ func (handle *BerkeleyDB) Flags() (C.u_int32_t, error) {
 	return flags, createError(ret)
 }
 
-func (handle *BerkeleyDB) Remove(filename string) error {
+func (handle *Db) Remove(filename string) error {
 	file := C.CString(filename)
 	defer C.free(unsafe.Pointer(file))
 
@@ -109,7 +109,7 @@ func (handle *BerkeleyDB) Remove(filename string) error {
 	return createError(ret)
 }
 
-func (handle *BerkeleyDB) Rename(oldname, newname string) error {
+func (handle *Db) Rename(oldname, newname string) error {
 	oname := C.CString(oldname)
 	defer C.free(unsafe.Pointer(oname))
 	nname := C.CString(newname)
@@ -121,7 +121,7 @@ func (handle *BerkeleyDB) Rename(oldname, newname string) error {
 }
 
 // Convenience function to store a string.
-func (handle *BerkeleyDB) Put(name, value string) error {
+func (handle *Db) Put(name, value string) error {
 	nname := C.CString(name)
 	defer C.free(unsafe.Pointer(nname))
 	nvalue := C.CString(value)
@@ -135,7 +135,7 @@ func (handle *BerkeleyDB) Put(name, value string) error {
 }
 
 // Convenience function to get a string.
-func (handle *BerkeleyDB) Get(name string) (string, error) {
+func (handle *Db) Get(name string) (string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
 	nname := C.CString(name)
@@ -145,7 +145,7 @@ func (handle *BerkeleyDB) Get(name string) (string, error) {
 	return C.GoString(value), createError(ret)
 }
 
-func (handle *BerkeleyDB) Delete(name string) error {
+func (handle *Db) Delete(name string) error {
 	nname := C.CString(name)
 	defer C.free(unsafe.Pointer(nname))
 
@@ -153,7 +153,7 @@ func (handle *BerkeleyDB) Delete(name string) error {
 	return createError(ret)
 }
 
-func (handle *BerkeleyDB) Cursor() (*Cursor, error) {
+func (handle *Db) Cursor() (*Cursor, error) {
 	var dbc *C.DBC
 
 	err := C.go_db_cursor(handle.db, &dbc)
