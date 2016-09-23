@@ -96,6 +96,57 @@ int go_cursor_get_next(DBC *dbcp, char *key, char *value) {
 	return ret;
 }
 
+int go_cursor_get_prev(DBC *dbcp, char *key, char *value) {
+        int ret;
+        DBT dkey, data;
+
+        memset(&dkey, 0, sizeof(DBT));
+        memset(&data, 0, sizeof(DBT));
+
+        if ((ret = dbcp->c_get(dbcp, &dkey, &data, DB_PREV)) != 0) {
+            return ret;
+        }
+
+        sprintf(key, "%s", (char*)dkey.data);
+        sprintf(value, "%s", (char*)data.data);
+
+        return ret;
+}
+
+int go_cursor_get_first(DBC *dbcp, char *key, char *value) {
+        int ret;
+        DBT dkey, data;
+
+        memset(&dkey, 0, sizeof(DBT));
+        memset(&data, 0, sizeof(DBT));
+
+        if ((ret = dbcp->c_get(dbcp, &dkey, &data, DB_FIRST)) != 0) {
+            return ret;
+        }
+
+        sprintf(key, "%s", (char*)dkey.data);
+        sprintf(value, "%s", (char*)data.data);
+
+        return ret;
+}
+
+int go_cursor_get_last(DBC *dbcp, char *key, char *value) {
+        int ret;
+        DBT dkey, data;
+
+        memset(&dkey, 0, sizeof(DBT));
+        memset(&data, 0, sizeof(DBT));
+
+        if ((ret = dbcp->c_get(dbcp, &dkey, &data, DB_LAST)) != 0) {
+            return ret;
+        }
+
+        sprintf(key, "%s", (char*)dkey.data);
+        sprintf(value, "%s", (char*)data.data);
+
+        return ret;
+}
+
 int go_db_del_string(DB *dbp, char *name) {
 	DBT key;
 	memset(&key, 0, sizeof(DBT));

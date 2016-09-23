@@ -18,3 +18,6 @@ int go_db_get_string(DB *, char *, char *);
 int go_db_del_string(DB *, char *);
 int go_db_cursor(DB *, DBC **);
 int go_cursor_get_next(DBC *, char *, char *);
+int go_cursor_get_prev(DBC *, char *, char *);
+int go_cursor_get_first(DBC *, char *, char *);
+int go_cursor_get_last(DBC *, char *, char *);

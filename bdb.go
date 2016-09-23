@@ -71,14 +71,19 @@ func NewDBInEnvironment(env *Environment) (*BDB, error) {
 
 func (handle *BDB) OpenWithTxn(filename string, txn *C.DB_TXN, dbtype C.DBTYPE, flags C.u_int32_t) error {
 	db := handle.db
+	file := C.CString(filename)
+	defer C.free(unsafe.Pointer(file))
 
-	ret := C.go_db_open(db, txn, C.CString(filename), nil, dbtype, flags, 0)
+	ret := C.go_db_open(db, txn, file, nil, dbtype, flags, 0)
 
 	return createError(ret)
 }
 
 func (handle *BDB) Open(filename string, dbtype C.DBTYPE, flags C.u_int32_t) error {
-	ret := C.go_db_open(handle.db, nil, C.CString(filename), nil, dbtype, flags, 0)
+	file := C.CString(filename)
+	defer C.free(unsafe.Pointer(file))
+
+	ret := C.go_db_open(handle.db, nil, file, nil, dbtype, flags, 0)
 
 	return createError(ret)
 }
@@ -98,20 +103,33 @@ func (handle *BDB) OpenFlags() (C.u_int32_t, error) {
 }
 
 func (handle *BDB) Remove(filename string) error {
-	ret := C.go_db_remove(handle.db, C.CString(filename))
+	file := C.CString(filename)
+	defer C.free(unsafe.Pointer(file))
+
+	ret := C.go_db_remove(handle.db, file)
 
 	return createError(ret)
 }
 
 func (handle *BDB) Rename(oldname, newname string) error {
-	ret := C.go_db_rename(handle.db, C.CString(oldname), C.CString(newname))
+	oname := C.CString(oldname)
+	defer C.free(unsafe.Pointer(oname))
+	nname := C.CString(newname)
+	defer C.free(unsafe.Pointer(nname))
+
+	ret := C.go_db_rename(handle.db, oname, nname)
 
 	return createError(ret)
 }
 
 // Convenience function to store a string.
 func (handle *BDB) PutString(name, value string) error {
-	ret := C.go_db_put_string(handle.db, C.CString(name), C.CString(value), 0)
+	nname := C.CString(name)
+	defer C.free(unsafe.Pointer(nname))
+	nvalue := C.CString(value)
+	defer C.free(unsafe.Pointer(nvalue))
+
+	ret := C.go_db_put_string(handle.db, nname, nvalue, 0)
 	if ret > 0 {
 		return createError(ret)
 	}
@@ -122,13 +140,18 @@ func (handle *BDB) PutString(name, value string) error {
 func (handle *BDB) GetString(name string) (string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
+	nname := C.CString(name)
+	defer C.free(unsafe.Pointer(nname))
 
-	ret := C.go_db_get_string(handle.db, C.CString(name), value)
+	ret := C.go_db_get_string(handle.db, nname, value)
 	return C.GoString(value), createError(ret)
 }
 
 func (handle *BDB) DeleteString(name string) error {
-	ret := C.go_db_del_string(handle.db, C.CString(name))
+	nname := C.CString(name)
+	defer C.free(unsafe.Pointer(nname))
+
+	ret := C.go_db_del_string(handle.db, nname)
 	return createError(ret)
 }
 
@@ -151,6 +174,36 @@ func (cursor *DBC) GetNext() (string, string, error) {
 	defer C.free(unsafe.Pointer(key))
 
 	ret := C.go_cursor_get_next(cursor.dbc, key, value)
+	return C.GoString(key), C.GoString(value), createError(ret)
+}
+
+func (cursor *DBC) GetPrev() (string, string, error) {
+	value := C.CString("")
+	defer C.free(unsafe.Pointer(value))
+	key := C.CString("")
+	defer C.free(unsafe.Pointer(key))
+
+	ret := C.go_cursor_get_prev(cursor.dbc, key, value)
+	return C.GoString(key), C.GoString(value), createError(ret)
+}
+
+func (cursor *DBC) GetFirst() (string, string, error) {
+	value := C.CString("")
+	defer C.free(unsafe.Pointer(value))
+	key := C.CString("")
+	defer C.free(unsafe.Pointer(key))
+
+	ret := C.go_cursor_get_first(cursor.dbc, key, value)
+	return C.GoString(key), C.GoString(value), createError(ret)
+}
+
+func (cursor *DBC) GetLast() (string, string, error) {
+	value := C.CString("")
+	defer C.free(unsafe.Pointer(value))
+	key := C.CString("")
+	defer C.free(unsafe.Pointer(key))
+
+	ret := C.go_cursor_get_last(cursor.dbc, key, value)
 	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
