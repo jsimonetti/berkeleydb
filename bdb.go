@@ -12,40 +12,40 @@ import (
 	"unsafe"
 )
 
-const BDB_VERSION string = "0.0.1"
+const BdbVersion string = "0.0.1"
 
 // Flags for opening a database or environment.
 const (
-	DB_CREATE   = C.DB_CREATE
-	DB_EXCL     = C.DB_EXCL
-	DB_RDONLY   = C.DB_RDONLY
-	DB_TRUNCATE = C.DB_TRUNCATE
+	DbCreate   = C.DB_CREATE
+	DbExcl     = C.DB_EXCL
+	DbRdOnly   = C.DB_RDONLY
+	DbTruncate = C.DB_TRUNCATE
 
 	// Env
-	DB_INIT_MPOOL = C.DB_INIT_MPOOL
+	DbInitMpool = C.DB_INIT_MPOOL
 )
 
 // Database types.
 const (
-	DB_BTREE = C.DB_BTREE
-	DB_HASH  = C.DB_HASH
+	DbBtree = C.DB_BTREE
+	DbHash  = C.DB_HASH
 	//	DB_HEAP    = C.DB_HEAP
-	DB_RECNO   = C.DB_RECNO
-	DB_QUEUE   = C.DB_QUEUE
-	DB_UNKNOWN = C.DB_UNKNOWN
+	DbRecno   = C.DB_RECNO
+	DbQueue   = C.DB_QUEUE
+	DbUnknown = C.DB_UNKNOWN
 )
 
-type BDB struct {
+type BerkeleyDB struct {
 	db *C.DB
 }
 
-type DBC struct {
+type dbCursor struct {
 	dbc *C.DBC
 }
 
 type Errno int
 
-func NewDB() (*BDB, error) {
+func NewDB() (*BerkeleyDB, error) {
 	var db *C.DB
 	err := C.db_create(&db, nil, 0)
 
@@ -53,10 +53,10 @@ func NewDB() (*BDB, error) {
 		return nil, createError(err)
 	}
 
-	return &BDB{db}, nil
+	return &BerkeleyDB{db}, nil
 }
 
-func NewDBInEnvironment(env *Environment) (*BDB, error) {
+func NewDBInEnvironment(env *Environment) (*BerkeleyDB, error) {
 	var db *C.DB
 	err := C.db_create(&db, env.environ, 0)
 
@@ -64,10 +64,10 @@ func NewDBInEnvironment(env *Environment) (*BDB, error) {
 		return nil, createError(err)
 	}
 
-	return &BDB{db}, nil
+	return &BerkeleyDB{db}, nil
 }
 
-func (handle *BDB) OpenWithTxn(filename string, txn *C.DB_TXN, dbtype C.DBTYPE, flags C.u_int32_t) error {
+func (handle *BerkeleyDB) OpenWithTxn(filename string, txn *C.DB_TXN, dbtype C.DBTYPE, flags C.u_int32_t) error {
 	db := handle.db
 	file := C.CString(filename)
 	defer C.free(unsafe.Pointer(file))
@@ -77,7 +77,7 @@ func (handle *BDB) OpenWithTxn(filename string, txn *C.DB_TXN, dbtype C.DBTYPE, 
 	return createError(ret)
 }
 
-func (handle *BDB) Open(filename string, dbtype C.DBTYPE, flags C.u_int32_t) error {
+func (handle *BerkeleyDB) Open(filename string, dbtype C.DBTYPE, flags C.u_int32_t) error {
 	file := C.CString(filename)
 	defer C.free(unsafe.Pointer(file))
 
@@ -86,13 +86,13 @@ func (handle *BDB) Open(filename string, dbtype C.DBTYPE, flags C.u_int32_t) err
 	return createError(ret)
 }
 
-func (handle *BDB) Close() error {
+func (handle *BerkeleyDB) Close() error {
 	ret := C.go_db_close(handle.db, 0)
 
 	return createError(ret)
 }
 
-func (handle *BDB) OpenFlags() (C.u_int32_t, error) {
+func (handle *BerkeleyDB) Flags() (C.u_int32_t, error) {
 	var flags C.u_int32_t
 
 	ret := C.go_db_get_open_flags(handle.db, &flags)
@@ -100,7 +100,7 @@ func (handle *BDB) OpenFlags() (C.u_int32_t, error) {
 	return flags, createError(ret)
 }
 
-func (handle *BDB) Remove(filename string) error {
+func (handle *BerkeleyDB) Remove(filename string) error {
 	file := C.CString(filename)
 	defer C.free(unsafe.Pointer(file))
 
@@ -109,7 +109,7 @@ func (handle *BDB) Remove(filename string) error {
 	return createError(ret)
 }
 
-func (handle *BDB) Rename(oldname, newname string) error {
+func (handle *BerkeleyDB) Rename(oldname, newname string) error {
 	oname := C.CString(oldname)
 	defer C.free(unsafe.Pointer(oname))
 	nname := C.CString(newname)
@@ -121,7 +121,7 @@ func (handle *BDB) Rename(oldname, newname string) error {
 }
 
 // Convenience function to store a string.
-func (handle *BDB) PutString(name, value string) error {
+func (handle *BerkeleyDB) Put(name, value string) error {
 	nname := C.CString(name)
 	defer C.free(unsafe.Pointer(nname))
 	nvalue := C.CString(value)
@@ -135,7 +135,7 @@ func (handle *BDB) PutString(name, value string) error {
 }
 
 // Convenience function to get a string.
-func (handle *BDB) GetString(name string) (string, error) {
+func (handle *BerkeleyDB) Get(name string) (string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
 	nname := C.CString(name)
@@ -145,7 +145,7 @@ func (handle *BDB) GetString(name string) (string, error) {
 	return C.GoString(value), createError(ret)
 }
 
-func (handle *BDB) DeleteString(name string) error {
+func (handle *BerkeleyDB) Delete(name string) error {
 	nname := C.CString(name)
 	defer C.free(unsafe.Pointer(nname))
 
@@ -153,7 +153,7 @@ func (handle *BDB) DeleteString(name string) error {
 	return createError(ret)
 }
 
-func (handle *BDB) Cursor() (*DBC, error) {
+func (handle *BerkeleyDB) Cursor() (*dbCursor, error) {
 	var dbc *C.DBC
 
 	err := C.go_db_cursor(handle.db, &dbc)
@@ -162,10 +162,10 @@ func (handle *BDB) Cursor() (*DBC, error) {
 		return nil, createError(err)
 	}
 
-	return &DBC{dbc}, nil
+	return &dbCursor{dbc}, nil
 }
 
-func (cursor *DBC) GetNext() (string, string, error) {
+func (cursor *dbCursor) GetNext() (string, string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
 	key := C.CString("")
@@ -175,7 +175,7 @@ func (cursor *DBC) GetNext() (string, string, error) {
 	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
-func (cursor *DBC) GetPrev() (string, string, error) {
+func (cursor *dbCursor) GetPrevious() (string, string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
 	key := C.CString("")
@@ -185,7 +185,7 @@ func (cursor *DBC) GetPrev() (string, string, error) {
 	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
-func (cursor *DBC) GetFirst() (string, string, error) {
+func (cursor *dbCursor) GetFirst() (string, string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
 	key := C.CString("")
@@ -195,7 +195,7 @@ func (cursor *DBC) GetFirst() (string, string, error) {
 	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
-func (cursor *DBC) GetLast() (string, string, error) {
+func (cursor *dbCursor) GetLast() (string, string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
 	key := C.CString("")
@@ -211,7 +211,7 @@ func Version() string {
 	lib_version := C.GoString(C.db_full_version(nil, nil, nil, nil, nil))
 
 	tpl := "%s (Go bindings v%s)"
-	return fmt.Sprintf(tpl, lib_version, BDB_VERSION)
+	return fmt.Sprintf(tpl, lib_version, BdbVersion)
 }
 
 type DBError struct {

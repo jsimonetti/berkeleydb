@@ -28,7 +28,7 @@ func TestNewEnvironment(t *testing.T) {
 
 func TestOpenEnvironment(t *testing.T) {
 	env, _ := berkeleydb.NewEnvironment()
-	err := env.Open(TEST_DIR, berkeleydb.DB_CREATE|berkeleydb.DB_INIT_MPOOL, 0)
+	err := env.Open(TEST_DIR, berkeleydb.DbCreate|berkeleydb.DbInitMpool, 0)
 	if err != nil {
 		t.Error("Expected to open DB, got %s", err)
 	}
@@ -41,7 +41,7 @@ func TestOpenEnvironment(t *testing.T) {
 
 func TestOpenDBInEnvironment(t *testing.T) {
 	env, _ := berkeleydb.NewEnvironment()
-	err := env.Open(TEST_DIR, berkeleydb.DB_CREATE|berkeleydb.DB_INIT_MPOOL, 0755)
+	err := env.Open(TEST_DIR, berkeleydb.DbCreate|berkeleydb.DbInitMpool, 0755)
 	if err != nil {
 		t.Error("Expected to open DB, got ", err)
 		return
@@ -53,7 +53,7 @@ func TestOpenDBInEnvironment(t *testing.T) {
 		t.Error("Expected to create new DB: ", err)
 	}
 
-	err = db.Open(TEST_FILENAME, berkeleydb.DB_BTREE, berkeleydb.DB_CREATE)
+	err = db.Open(TEST_FILENAME, berkeleydb.DbBtree, berkeleydb.DbCreate)
 	if err != nil {
 		t.Error("Expected to open DB, got ", err)
 	}

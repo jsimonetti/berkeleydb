@@ -23,17 +23,17 @@ func TestOpen(t *testing.T) {
 		t.Errorf("Unexpected failure of CreateDB")
 	}
 
-	err = db.Open(TEST_FILENAME, berkeleydb.DB_BTREE, berkeleydb.DB_CREATE)
+	err = db.Open(TEST_FILENAME, berkeleydb.DbBtree, berkeleydb.DbCreate)
 
 	if err != nil {
 		t.Errorf("Could not open test_db.db. Error code %s", err)
 	}
 
-	flags, err := db.OpenFlags()
+	flags, err := db.Flags()
 	if err != nil {
-		t.Errorf("Could not get OpenFlags: %s", err)
+		t.Errorf("Could not get Flags: %s", err)
 	}
-	if flags != berkeleydb.DB_CREATE {
+	if flags != berkeleydb.DbCreate {
 		t.Errorf("Expected flag to match DB_CREATE, got %d", flags)
 	}
 
@@ -45,14 +45,14 @@ func TestOpen(t *testing.T) {
 
 }
 
-func openDB() (*berkeleydb.BDB, error) {
+func openDB() (*berkeleydb.BerkeleyDB, error) {
 	db, err := berkeleydb.NewDB()
 
 	if err != nil {
 		return nil, err
 	}
 
-	err = db.Open(TEST_FILENAME, berkeleydb.DB_BTREE, berkeleydb.DB_CREATE)
+	err = db.Open(TEST_FILENAME, berkeleydb.DbBtree, berkeleydb.DbCreate)
 
 	if err != nil {
 		return nil, err
@@ -61,32 +61,32 @@ func openDB() (*berkeleydb.BDB, error) {
 	return db, nil
 }
 
-func closeDB(db *berkeleydb.BDB) error {
+func closeDB(db *berkeleydb.BerkeleyDB) error {
 	return db.Close()
 }
 
-func TestPutString(t *testing.T) {
+func TestPut(t *testing.T) {
 	db, err := openDB()
 	defer closeDB(db)
 
-	err = db.PutString("key", "value")
+	err = db.Put("key", "value")
 	if err != nil {
-		t.Error("Expected clean PutString.", err)
+		t.Error("Expected clean Put.", err)
 	}
 }
 
-func TestGetString(t *testing.T) {
+func TestGet(t *testing.T) {
 	db, err := openDB()
 	defer closeDB(db)
 
-	err = db.PutString("key", "value")
+	err = db.Put("key", "value")
 	if err != nil {
-		t.Error("Expected clean PutString: ", err)
+		t.Error("Expected clean Put: ", err)
 	}
 
-	val, err := db.GetString("key")
+	val, err := db.Get("key")
 	if err != nil {
-		t.Error("Unexpected error in GetString: ", err)
+		t.Error("Unexpected error in Get: ", err)
 		return
 	}
 
@@ -95,21 +95,21 @@ func TestGetString(t *testing.T) {
 	}
 }
 
-func TestDeleteString(t *testing.T) {
+func TestDelete(t *testing.T) {
 	db, err := openDB()
 	defer closeDB(db)
 
-	err = db.PutString("key", "value")
+	err = db.Put("key", "value")
 	if err != nil {
-		t.Error("Expected clean PutString: ", err)
+		t.Error("Expected clean Put: ", err)
 	}
 
-	err = db.DeleteString("key")
+	err = db.Delete("key")
 	if err != nil {
 		t.Error("Expected a clean delete, got ", err)
 	}
 
-	err = db.DeleteString("nosuchkey")
+	err = db.Delete("nosuchkey")
 	if err == nil {
 		t.Error("Expected error, got ", err)
 	}
@@ -126,7 +126,7 @@ func TestRemove(t *testing.T) {
 
 func TestRename(t *testing.T) {
 	db, _ := berkeleydb.NewDB()
-	db.Open(TEST_FILENAME, berkeleydb.DB_HASH, berkeleydb.DB_CREATE)
+	db.Open(TEST_FILENAME, berkeleydb.DbHash, berkeleydb.DbCreate)
 	db.Close()
 
 	db, _ = berkeleydb.NewDB()

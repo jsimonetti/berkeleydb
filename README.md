@@ -31,19 +31,19 @@ func main() {
                 fmt.Printf("Unexpected failure of CreateDB %s\n", err)
         }
 
-        err = db.Open("./test.db", berkeleydb.DB_HASH, berkeleydb.DB_CREATE)
+        err = db.Open("./test.db", berkeleydb.DbHash, berkeleydb.DbCreate)
         if err != nil {
                 fmt.Printf("Could not open test_db.db. Error code %s", err)
                 return
         }
         defer db.Close()
 
-        err = db.PutString("key", "value")
+        err = db.Put("key", "value")
         if err != nil {
                 fmt.Printf("Expected clean PutString: %s\n", err)
         }
 
-        value, err := db.GetString("key")
+        value, err := db.Get("key")
         if err != nil {
                 fmt.Printf("Unexpected error in GetString: %s\n", err)
                 return
