@@ -12,7 +12,7 @@ import (
 	"unsafe"
 )
 
-const BdbVersion string = "0.0.1"
+const version string = "0.0.1"
 
 // Flags for opening a database or environment.
 const (
@@ -211,7 +211,7 @@ func Version() string {
 	lib_version := C.GoString(C.db_full_version(nil, nil, nil, nil, nil))
 
 	tpl := "%s (Go bindings v%s)"
-	return fmt.Sprintf(tpl, lib_version, BdbVersion)
+	return fmt.Sprintf(tpl, lib_version, version)
 }
 
 type DBError struct {
