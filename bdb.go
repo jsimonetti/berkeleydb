@@ -1,11 +1,9 @@
 package berkeleydb
 
-/*
-#cgo LDFLAGS: -ldb
-#include <db.h>
-#include <stdlib.h>
-#include "bdb.h"
-*/
+// #cgo LDFLAGS: -ldb
+// #include <db.h>
+// #include <stdlib.h>
+// #include "bdb.h"
 import "C"
 
 import (
