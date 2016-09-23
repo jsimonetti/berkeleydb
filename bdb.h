@@ -16,3 +16,5 @@ extern int go_env_close(DB_ENV *, u_int32_t);
 int go_db_put_string(DB *, char *, char *, u_int32_t);
 int go_db_get_string(DB *, char *, char *);
 int go_db_del_string(DB *, char *);
+int go_db_cursor(DB *, DBC **);
+int go_cursor_get_next(DBC *, char *, char *);

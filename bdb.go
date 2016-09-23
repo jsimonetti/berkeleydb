@@ -41,6 +41,10 @@ type BDB struct {
 	db *C.DB
 }
 
+type DBC struct {
+	dbc *C.DBC
+}
+
 type Errno int
 
 func NewDB() (*BDB, error) {
@@ -126,6 +130,28 @@ func (handle *BDB) GetString(name string) (string, error) {
 func (handle *BDB) DeleteString(name string) error {
 	ret := C.go_db_del_string(handle.db, C.CString(name))
 	return createError(ret)
+}
+
+func (handle *BDB) Cursor() (*DBC, error) {
+	var dbc *C.DBC
+
+	err := C.go_db_cursor(handle.db, &dbc)
+
+	if err > 0 {
+		return nil, createError(err)
+	}
+
+	return &DBC{dbc}, nil
+}
+
+func (cursor *DBC) GetNext() (string, string, error) {
+	value := C.CString("")
+	defer C.free(unsafe.Pointer(value))
+	key := C.CString("")
+	defer C.free(unsafe.Pointer(key))
+
+	ret := C.go_cursor_get_next(cursor.dbc, key, value)
+	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
 // UTILITY FUNCTIONS
