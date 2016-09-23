@@ -27,9 +27,9 @@ const (
 
 // Database types.
 const (
-	DB_BTREE   = C.DB_BTREE
-	DB_HASH    = C.DB_HASH
-	DB_HEAP    = C.DB_HEAP
+	DB_BTREE = C.DB_BTREE
+	DB_HASH  = C.DB_HASH
+	//	DB_HEAP    = C.DB_HEAP
 	DB_RECNO   = C.DB_RECNO
 	DB_QUEUE   = C.DB_QUEUE
 	DB_UNKNOWN = C.DB_UNKNOWN
