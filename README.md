@@ -8,7 +8,6 @@
 This package provides BerkeleyDB wrappers for the C library using `cgo`.
 
 To build, you will need a relatively recent version of BerkeleyDB.
-package main
 
 
 
@@ -40,12 +39,12 @@ func main() {
 
         err = db.Put("key", "value")
         if err != nil {
-                fmt.Printf("Expected clean PutString: %s\n", err)
+                fmt.Printf("Expected clean Put: %s\n", err)
         }
 
         value, err := db.Get("key")
         if err != nil {
-                fmt.Printf("Unexpected error in GetString: %s\n", err)
+                fmt.Printf("Unexpected error in Get: %s\n", err)
                 return
         }
         fmt.Printf("value: %s\n", value)
