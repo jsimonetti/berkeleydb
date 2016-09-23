@@ -21,15 +21,14 @@ const (
 	DbRdOnly   = C.DB_RDONLY
 	DbTruncate = C.DB_TRUNCATE
 
-	// Environment Only
+	// DbInitMpool is used in environment only
 	DbInitMpool = C.DB_INIT_MPOOL
 )
 
 // Database types.
 const (
-	DbBtree = C.DB_BTREE
-	DbHash  = C.DB_HASH
-	//	DB_HEAP    = C.DB_HEAP
+	DbBtree   = C.DB_BTREE
+	DbHash    = C.DB_HASH
 	DbRecno   = C.DB_RECNO
 	DbQueue   = C.DB_QUEUE
 	DbUnknown = C.DB_UNKNOWN
@@ -223,14 +222,14 @@ func (cursor *Cursor) GetLast() (string, string, error) {
 	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
-// Version returns the version of the database and binding
-
 // UTILITY FUNCTIONS
+
+// Version returns the version of the database and binding
 func Version() string {
-	lib_version := C.GoString(C.db_full_version(nil, nil, nil, nil, nil))
+	libVersion := C.GoString(C.db_full_version(nil, nil, nil, nil, nil))
 
 	tpl := "%s (Go bindings v%s)"
-	return fmt.Sprintf(tpl, lib_version, version)
+	return fmt.Sprintf(tpl, libVersion, version)
 }
 
 // DBError contains the database Error

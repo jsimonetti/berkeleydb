@@ -7,12 +7,12 @@ import (
 	"github.com/jsimonetti/berkeleydb"
 )
 
-const TEST_DIR = "./TEST_ENV"
+const TestDirectory = "./TEST_ENV"
 
 func TestNewEnvironment(t *testing.T) {
-	_, err := os.Stat(TEST_DIR)
+	_, err := os.Stat(TestDirectory)
 	if err != nil && os.IsNotExist(err) {
-		e := os.Mkdir(TEST_DIR, os.ModeDir|os.ModePerm)
+		e := os.Mkdir(TestDirectory, os.ModeDir|os.ModePerm)
 		if e != nil {
 			t.Fatal("Failed to create directory: %s", e)
 		}
@@ -28,7 +28,7 @@ func TestNewEnvironment(t *testing.T) {
 
 func TestOpenEnvironment(t *testing.T) {
 	env, _ := berkeleydb.NewEnvironment()
-	err := env.Open(TEST_DIR, berkeleydb.DbCreate|berkeleydb.DbInitMpool, 0)
+	err := env.Open(TestDirectory, berkeleydb.DbCreate|berkeleydb.DbInitMpool, 0)
 	if err != nil {
 		t.Error("Expected to open DB, got %s", err)
 	}
@@ -41,7 +41,7 @@ func TestOpenEnvironment(t *testing.T) {
 
 func TestOpenDBInEnvironment(t *testing.T) {
 	env, _ := berkeleydb.NewEnvironment()
-	err := env.Open(TEST_DIR, berkeleydb.DbCreate|berkeleydb.DbInitMpool, 0755)
+	err := env.Open(TestDirectory, berkeleydb.DbCreate|berkeleydb.DbInitMpool, 0755)
 	if err != nil {
 		t.Error("Expected to open DB, got ", err)
 		return
@@ -59,7 +59,7 @@ func TestOpenDBInEnvironment(t *testing.T) {
 	}
 
 	// Test that the DB file was actually created.
-	_, err = os.Stat(TEST_DIR + "/" + TEST_FILENAME)
+	_, err = os.Stat(TestDirectory + "/" + TEST_FILENAME)
 	if err != nil {
 		t.Error("Expected to stat .db, got ", err)
 	}
@@ -75,7 +75,7 @@ func TestOpenDBInEnvironment(t *testing.T) {
 	}
 }
 func TestTeardown(t *testing.T) {
-	err := os.RemoveAll(TEST_DIR)
+	err := os.RemoveAll(TestDirectory)
 	if err != nil {
 		t.Fatal("Expected to remove fixtures, got %s", err)
 	}

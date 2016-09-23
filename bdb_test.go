@@ -6,7 +6,7 @@ import (
 	"github.com/jsimonetti/berkeleydb"
 )
 
-const TEST_FILENAME = "test_db.db"
+const TestFilename = "test_db.db"
 
 func TestNewDB(t *testing.T) {
 
@@ -23,7 +23,7 @@ func TestOpen(t *testing.T) {
 		t.Errorf("Unexpected failure of CreateDB")
 	}
 
-	err = db.Open(TEST_FILENAME, berkeleydb.DbBtree, berkeleydb.DbCreate)
+	err = db.Open(TestFilename, berkeleydb.DbBtree, berkeleydb.DbCreate)
 
 	if err != nil {
 		t.Errorf("Could not open test_db.db. Error code %s", err)
@@ -39,7 +39,7 @@ func TestOpen(t *testing.T) {
 
 	err = db.Close()
 	if err != nil {
-		t.Errorf("Could not close file %s: %s", TEST_FILENAME, err)
+		t.Errorf("Could not close file %s: %s", TestFilename, err)
 		return
 	}
 
@@ -52,7 +52,7 @@ func openDB() (*berkeleydb.Db, error) {
 		return nil, err
 	}
 
-	err = db.Open(TEST_FILENAME, berkeleydb.DbBtree, berkeleydb.DbCreate)
+	err = db.Open(TestFilename, berkeleydb.DbBtree, berkeleydb.DbCreate)
 
 	if err != nil {
 		return nil, err
@@ -118,23 +118,23 @@ func TestDelete(t *testing.T) {
 func TestRemove(t *testing.T) {
 	db, _ := berkeleydb.NewDB()
 
-	err := db.Remove(TEST_FILENAME)
+	err := db.Remove(TestFilename)
 	if err != nil {
-		t.Errorf("Could not delete %s. Expected 0, got %s", TEST_FILENAME, err)
+		t.Errorf("Could not delete %s. Expected 0, got %s", TestFilename, err)
 	}
 }
 
 func TestRename(t *testing.T) {
 	db, _ := berkeleydb.NewDB()
-	db.Open(TEST_FILENAME, berkeleydb.DbHash, berkeleydb.DbCreate)
+	db.Open(TestFilename, berkeleydb.DbHash, berkeleydb.DbCreate)
 	db.Close()
 
 	db, _ = berkeleydb.NewDB()
 
-	newname := "foo_" + TEST_FILENAME
-	err := db.Rename(TEST_FILENAME, newname)
+	newname := "foo_" + TestFilename
+	err := db.Rename(TestFilename, newname)
 	if err != nil {
-		t.Errorf("Could not rename %s to %s", TEST_FILENAME, newname)
+		t.Errorf("Could not rename %s to %s", TestFilename, newname)
 	}
 
 	db, _ = berkeleydb.NewDB()
