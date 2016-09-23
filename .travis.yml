@@ -8,6 +8,9 @@ go:
 addons:
   apt:
     packages:
-    - libdb-dev
+      - libdb-dev
+install:
+  - go get -t -d -v ./...
+  - go build -v
 script:
-- go test -v .
+  - go test -v .
