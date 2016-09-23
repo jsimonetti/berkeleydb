@@ -1,3 +1,7 @@
+[![GoDoc](https://godoc.org/github.com/jsimonetti/berkeleydb?status.svg)](https://godoc.org/github.com/jsimonetti/berkeleydb)
+[![Travis](https://api.travis-ci.org/jsimonetti/berkeleydb.svg?branch=master)](https://travis-ci.org/jsimonetti/berkeleydb)
+
+
 ### BerkeleyDB Bindings
 
 This package provides BerkeleyDB wrappers for the C library using `cgo`.

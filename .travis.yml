@@ -1,0 +1,12 @@
+---
+os:
+  - linux
+language: go
+go:
+  - 1.6
+  - tip
+addons:
+  apt:
+    packages:
+    - libdb-dev
+
