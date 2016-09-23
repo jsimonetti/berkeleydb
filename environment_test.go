@@ -53,13 +53,13 @@ func TestOpenDBInEnvironment(t *testing.T) {
 		t.Error("Expected to create new DB: ", err)
 	}
 
-	err = db.Open(TEST_FILENAME, berkeleydb.DbBtree, berkeleydb.DbCreate)
+	err = db.Open(TestFilename, berkeleydb.DbBtree, berkeleydb.DbCreate)
 	if err != nil {
 		t.Error("Expected to open DB, got ", err)
 	}
 
 	// Test that the DB file was actually created.
-	_, err = os.Stat(TestDirectory + "/" + TEST_FILENAME)
+	_, err = os.Stat(TestDirectory + "/" + TestFilename)
 	if err != nil {
 		t.Error("Expected to stat .db, got ", err)
 	}
