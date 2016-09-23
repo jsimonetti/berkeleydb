@@ -39,7 +39,7 @@ type BerkeleyDB struct {
 	db *C.DB
 }
 
-type dbCursor struct {
+type Cursor struct {
 	dbc *C.DBC
 }
 
@@ -153,7 +153,7 @@ func (handle *BerkeleyDB) Delete(name string) error {
 	return createError(ret)
 }
 
-func (handle *BerkeleyDB) Cursor() (*dbCursor, error) {
+func (handle *BerkeleyDB) Cursor() (*Cursor, error) {
 	var dbc *C.DBC
 
 	err := C.go_db_cursor(handle.db, &dbc)
@@ -162,10 +162,10 @@ func (handle *BerkeleyDB) Cursor() (*dbCursor, error) {
 		return nil, createError(err)
 	}
 
-	return &dbCursor{dbc}, nil
+	return &Cursor{dbc}, nil
 }
 
-func (cursor *dbCursor) GetNext() (string, string, error) {
+func (cursor *Cursor) GetNext() (string, string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
 	key := C.CString("")
@@ -175,7 +175,7 @@ func (cursor *dbCursor) GetNext() (string, string, error) {
 	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
-func (cursor *dbCursor) GetPrevious() (string, string, error) {
+func (cursor *Cursor) GetPrevious() (string, string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
 	key := C.CString("")
@@ -185,7 +185,7 @@ func (cursor *dbCursor) GetPrevious() (string, string, error) {
 	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
-func (cursor *dbCursor) GetFirst() (string, string, error) {
+func (cursor *Cursor) GetFirst() (string, string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
 	key := C.CString("")
@@ -195,7 +195,7 @@ func (cursor *dbCursor) GetFirst() (string, string, error) {
 	return C.GoString(key), C.GoString(value), createError(ret)
 }
 
-func (cursor *dbCursor) GetLast() (string, string, error) {
+func (cursor *Cursor) GetLast() (string, string, error) {
 	value := C.CString("")
 	defer C.free(unsafe.Pointer(value))
 	key := C.CString("")
