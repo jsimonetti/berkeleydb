@@ -2,6 +2,8 @@
 [![Travis](https://api.travis-ci.org/jsimonetti/berkeleydb.svg?branch=master)](https://travis-ci.org/jsimonetti/berkeleydb)
 
 
+# BEWARE #
+This library is unmaintained and may stop working at any time.
 
 ### BerkeleyDB Bindings
 
